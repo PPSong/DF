@@ -99,6 +99,7 @@ export default class PPList extends React.Component {
   }
 
   setLocalUpdatedRecord(record) {
+    console.log("setLocalUpdatedRecord");
     if (!record.id) {
       // todo 在整张页面递交时, 需要把这些fakeid设置为0
       record.id = "fake" + new Date().getTime();

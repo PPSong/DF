@@ -176,7 +176,7 @@ export default class PPExample extends React.Component {
             ref={ref => (this.lists.l1 = ref)}
             width={960}
             title={"测试列表"}
-            // saveApi={"testUrl"}
+            saveApi={"testUrl"}
           />
           <Button onClick={() => this.submitAll()}>保存</Button>
         </div>
