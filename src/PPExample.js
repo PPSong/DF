@@ -16,6 +16,18 @@ export default class PPExample extends React.Component {
   componentDidMount() {
     // f1 config
     const f1FieldsConfig = {
+      id: {
+        antFormItemProps: {
+          label: "id"
+        },
+        antFieldDecorator: {
+          options: {}
+        },
+        antFieldItem: {
+          type: "Input",
+          props: {}
+        }
+      },
       mail: {
         antFormItemProps: {
           label: "电子邮件",
@@ -65,7 +77,7 @@ export default class PPExample extends React.Component {
                 justify: "start"
               },
               colNum: 2,
-              fields: [{ id: "mail" }]
+              fields: [{ id: "id" }, { id: "mail" }]
             },
             {
               id: "sec1g1",
@@ -81,7 +93,10 @@ export default class PPExample extends React.Component {
       ]
     };
 
-    const f1FieldsValue = {};
+    const f1FieldsValue = {
+      id: 1,
+      mail: "1@1.com"
+    };
     // f2 config
 
     // f3 config
@@ -167,6 +182,34 @@ export default class PPExample extends React.Component {
     }, 100);
   }
 
+  setData(data) {
+    data.id = new Date().getTime();
+    this.setState({
+      f1Config: {
+        ...this.state.f1Config,
+        data: data
+      }
+    });
+
+    console.log(this.state.f1Config.data);
+  }
+
+  submitAll() {
+    this.f1.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        console.log(record);
+      }
+    });
+
+    this.f2.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        console.log(record);
+      }
+    });
+
+    console.log(this.state.f3Config.data)
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -184,6 +227,13 @@ export default class PPExample extends React.Component {
             data={this.state.f1Config.data}
             saveApi={"testUrl"}
           />
+          <CustomForm
+            parent={this}
+            ref={ref => (this.f2 = ref)}
+            config={this.state.f1Config}
+            data={this.state.f1Config.data}
+            saveApi={"testUrl"}
+          />
           <PPList
             parent={this}
             config={this.state.f3Config.config}
@@ -192,6 +242,7 @@ export default class PPExample extends React.Component {
             title={"测试列表"}
             saveApi={"testUrl"}
           />
+          <Button onClick={() => this.submitAll()}>保存</Button>
         </div>
       );
     }

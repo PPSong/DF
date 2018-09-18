@@ -30,20 +30,14 @@ export default class CustomForm extends React.Component {
     if (!record.id) {
       record.id = new Date().getTime();
     }
-
-    this.set(record);
-  }
-
-  setLocalUpdatedRecord(record) {
-    if (!record.id) {
-      // todo 在整张页面递交时, 需要把这些fakeid设置为0
-      record.id = "fake" + new Date().getTime();
-    }
-
-    this.set(record);
+    this.setFormData(record);
   }
 
   setFormData(record) {
+    if (!record || Object.keys(record).length === 0 ) {
+      // 没有数据的情况
+      return;
+    }
     const formConfigFieldsId = this.props.config.formConfig.sections
       .reduce(
         (pre, item) =>
@@ -57,15 +51,32 @@ export default class CustomForm extends React.Component {
     const filteredFieldsValue = Object.keys(record)
       .filter(key => formConfigFieldsId.includes(key))
       .reduce((obj, key) => {
-        obj[key] = record[key].value;
+        obj[key] = record[key];
         return obj;
       }, {});
 
     this.ppForm.props.form.setFieldsValue(filteredFieldsValue);
   }
 
-  set(record) {
-    this.props.data = record;
+  saveOnClick() {
+    this.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        // 处理接受到的result(record信息), 直接调用save api或者先放入父级本地数据容器, 失败不要hideModel, 否则hideModel(如果是new的情况, 把从服务器得到的id填入record)
+        if (this.props.saveApi) {
+          // 由editForm直接调用api保存的情况
+          this.setApiUpdatedRecord(this.props.saveApi, record);
+        } else {
+          // 如果需要吧form数据传给父级, 不应该在这里设置save按钮
+        }
+      }
+    });
+  }
+
+  componentDidMount() {
+    // 等待form加载完毕
+    setTimeout(() => {
+      this.setFormData(this.props.data);
+    }, 100);
   }
 
   render() {
