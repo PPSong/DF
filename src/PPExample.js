@@ -195,20 +195,51 @@ export default class PPExample extends React.Component {
   }
 
   submitAll() {
-    this.f1.ppForm.props.form.validateFields((err, record) => {
-      if (!err) {
-        console.log(record);
-      }
-    });
+    const errs = {};
+    const formRecords = {};
+    const listRecords = {};
 
-    this.f2.ppForm.props.form.validateFields((err, record) => {
-      if (!err) {
-        console.log(record);
-      }
-    });
+    for (const key in this.forms) {
+      this.forms[key].ppForm.props.form.validateFields((err, record) => {
+        if (!err) {
+          formRecords[key] = record;
+        } else {
+          errs[key] = err;
+        }
+      });
+    }
 
-    console.log(this.state.f3Config.data)
+    for (const key in this.lists) {
+      listRecords[key] = this.lists[key].state.data;
+    }
+
+    if (errs.length > 0) {
+      console.log(errs);
+    } else {
+      // 处理listRecords中的fakeId
+      this.processFakeId(listRecords);
+
+      console.log("forms data:", formRecords);
+      console.log("lists data:", listRecords);
+    }
   }
+
+  processFakeId(listRecords) {
+    for (const list in listRecords) {
+      console.log(listRecords[list])
+      for (const item of listRecords[list]) {
+        console.log(item)
+        if (item.id.startsWith("fake")) {
+          // todo: 确定新增记录的id是数字0还是字符'0'
+          item.id = 0;
+        }
+      }
+    }
+  }
+
+  forms = {};
+
+  lists = {};
 
   render() {
     if (this.state.loading) {
@@ -222,25 +253,26 @@ export default class PPExample extends React.Component {
         <div>
           <CustomForm
             parent={this}
-            ref={ref => (this.f1 = ref)}
+            ref={ref => (this.forms.f1 = ref)}
             config={this.state.f1Config}
             data={this.state.f1Config.data}
             saveApi={"testUrl"}
           />
           <CustomForm
             parent={this}
-            ref={ref => (this.f2 = ref)}
+            ref={ref => (this.forms.f2 = ref)}
             config={this.state.f1Config}
             data={this.state.f1Config.data}
             saveApi={"testUrl"}
           />
           <PPList
             parent={this}
+            ref={ref => (this.lists.l1 = ref)}
             config={this.state.f3Config.config}
             data={this.state.f3Config.data}
             width={960}
             title={"测试列表"}
-            saveApi={"testUrl"}
+            // saveApi={"testUrl"}
           />
           <Button onClick={() => this.submitAll()}>保存</Button>
         </div>

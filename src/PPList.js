@@ -114,7 +114,8 @@ const config = {
 export default class PPList extends React.Component {
   state = {
     showModal: false,
-    modalTitle: null
+    modalTitle: null,
+    data: this.props.data
   };
 
   renderHeaderField(field) {
@@ -183,7 +184,7 @@ export default class PPList extends React.Component {
   setLocalUpdatedRecord(record) {
     if (!record.id) {
       // todo 在整张页面递交时, 需要把这些fakeid设置为0
-      record.id = 'fake' + new Date().getTime();
+      record.id = "fake" + new Date().getTime();
     }
 
     this.addOrSet(record);
