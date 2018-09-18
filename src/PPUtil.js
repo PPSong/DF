@@ -76,63 +76,127 @@ export function isEmptyObject(obj) {
   return !obj || Object.keys(obj).length === 0;
 }
 
-function convertFieldsConfig() {
-  const a = [
-    "mail, Input, 电子邮件: width_300, *",
-    "save, Button, 保存: type_primary"
+export function getPageConfigAndDataSimple() {
+  const fieldsConfig = [
+    "mail, Input, 电子邮件: width_300, rule_*",
+    "f1, Input, f1: rule_*",
+    "f2, Input, f2: rule_*",
+    "f3, Input, f3: rule_*",
+    "f4, Input, f4: rule_*",
+    "f5, Input, f5: rule_*",
+    "save, Button, 保存: buttonType_primary"
   ];
 
-  for (const itemString of a) {
-    const itemObj = {};
-    const parts = itemString.split(":");
+  const targetFieldsConfig = {};
+
+  const f1FormConfig = [
+    // section
+    {
+      id: "sec1",
+      name: "电子邮件",
+      // group
+      groups: ["sec1g0, start, 2: mail", "sec1g1, end, 12: save"]
+    }
+  ];
+
+  for (const item of fieldsConfig) {
+    const parts = item.split(":");
     const firstPart = parts[0];
     const optionalPart = parts[1];
 
     const firstTags = firstPart.split(",").map(item => item.trim());
-    for (let i = 0; i < 3; i++) {
-      const id = firstTags[0];
-      const type = firstTags[1];
-      const label = firstTags[2];
+    let id, type, label, wrapperCol, buttonType, child;
+    const rules = [];
+
+    id = firstTags[0];
+    type = firstTags[1];
+    if (type === "Button") {
+      child = firstTags[2];
+    } else {
+      label = firstTags[2];
     }
+
+    const optionalTags = optionalPart.split(",").map(item => item.trim());
+    for (let i = 0; i < optionalTags.length; i++) {
+      const parts = optionalTags[i].split("_");
+      const name = parts[0];
+      const value = parts[1];
+
+      if (name === "width") {
+        wrapperCol = {
+          width: parseInt(value)
+        };
+      } else if (name === "rule") {
+        if (value === "*") {
+          rules.push({ required: true, message: `请输入${label}` });
+        }
+      } else if (name === "buttonType") {
+        buttonType = value;
+      }
+    }
+
+    targetFieldsConfig[id] = {
+      antFormItemProps: {
+        label: label,
+        wrapperCol: wrapperCol
+      },
+      antFieldDecorator: {
+        options: {
+          rules: rules
+        }
+      },
+      antFieldItem: {
+        type: type,
+        props: {
+          type: buttonType
+        },
+        child: child
+      }
+    };
   }
+
+  console.log(targetFieldsConfig);
+
+  return targetFieldsConfig;
 }
 
 // mock
 export function getPageConfigAndData() {
-  const f1FieldsConfig = {
-    mail: {
-      antFormItemProps: {
-        label: "电子邮件",
-        wrapperCol: {
-          width: 300
-        }
-      },
-      antFieldDecorator: {
-        options: {
-          rules: [{ required: true, message: "Please input your 电子邮件!" }]
-        }
-      },
-      antFieldItem: {
-        type: "Input",
-        props: {}
-      }
-    },
-    save: {
-      antFormItemProps: {
-        label: ""
-      },
-      antFieldDecorator: {
-        options: {}
-      },
-      antFieldItem: {
-        type: "Button",
-        props: {
-          type: "primary"
-        },
-        child: "保存"
-      }
-    }
-  };
+  const f1FieldsConfig = getPageConfigAndDataSimple();
+  // const f1FieldsConfig = {
+  //   mail: {
+  //     antFormItemProps: {
+  //       label: "电子邮件",
+  //       wrapperCol: {
+  //         width: 300
+  //       }
+  //     },
+  //     antFieldDecorator: {
+  //       options: {
+  //         rules: [{ required: true, message: "Please input your 电子邮件!" }]
+  //       }
+  //     },
+  //     antFieldItem: {
+  //       type: "Input",
+  //       props: {}
+  //     }
+  //   },
+  //   save: {
+  //     antFormItemProps: {
+  //       label: ""
+  //     },
+  //     antFieldDecorator: {
+  //       options: {}
+  //     },
+  //     antFieldItem: {
+  //       type: "Button",
+  //       props: {
+  //         type: "primary"
+  //       },
+  //       child: "保存"
+  //     }
+  //   }
+  // };
 
   const f1FormConfig = {
     antFormProps: {
@@ -150,7 +214,7 @@ export function getPageConfigAndData() {
               justify: "start"
             },
             colNum: 2,
-            fields: [{ id: "mail" }]
+            fields: [{ id: "mail" }, { id: "f1" }, { id: "f2" }, { id: "f3" }, { id: "f5" }]
           },
           {
             id: "sec1g1",
