@@ -8,26 +8,14 @@ import * as PPUtil from "./PPUtil";
 export default class PPExample extends React.Component {
   state = {
     loading: true,
-    f1Config: null,
-    f2Config: null,
-    f3Config: null
+    f1: null,
+    f2: null,
+    l3: null
   };
 
   componentDidMount() {
     // f1 config
     const f1FieldsConfig = {
-      id: {
-        antFormItemProps: {
-          label: "id"
-        },
-        antFieldDecorator: {
-          options: {}
-        },
-        antFieldItem: {
-          type: "Input",
-          props: {}
-        }
-      },
       mail: {
         antFormItemProps: {
           label: "电子邮件",
@@ -77,7 +65,7 @@ export default class PPExample extends React.Component {
                 justify: "start"
               },
               colNum: 2,
-              fields: [{ id: "id" }, { id: "mail" }]
+              fields: [{ id: "mail" }]
             },
             {
               id: "sec1g1",
@@ -158,17 +146,17 @@ export default class PPExample extends React.Component {
     ];
 
     this.setState({
-      f1Config: {
+      f1: {
         fieldsConfig: f1FieldsConfig,
         formConfig: f1FormConfig,
         data: f1FieldsValue
       },
-      f2Config: {
+      f2: {
         fieldsConfig: f1FieldsConfig,
         formConfig: f1FormConfig,
-        fieldsValue: f1FieldsValue
+        data: f1FieldsValue
       },
-      f3Config: {
+      l1: {
         config: f3ListConfig,
         data: f3Data
       }
@@ -213,50 +201,66 @@ export default class PPExample extends React.Component {
       listRecords[key] = this.lists[key].state.data;
     }
 
-    if (errs.length > 0) {
+    if (!PPUtil.isEmptyObject(errs)) {
       console.log(errs);
     } else {
       // 处理listRecords中的fakeId
-      this.processFakeId(listRecords);
+      const processedListRecords = this.processFakeId(listRecords);
 
-      console.log("forms data:", formRecords);
-      console.log("lists data:", listRecords);
+      console.log(formRecords);
+      console.log(processedListRecords);
     }
   }
 
   processFakeId(listRecords) {
+    const processedListRecords = {};
     for (const list in listRecords) {
-      console.log(listRecords[list]);
+      processedListRecords[list] = [];
       for (const item of listRecords[list]) {
-        console.log(item);
         if (item.id.startsWith("fake")) {
           // todo: 确定新增记录的id是数字0还是字符'0'
-          item.id = 0;
+          processedListRecords[list].push({ ...item, id: 0 });
+        } else {
+          processedListRecords[list].push(item);
         }
       }
     }
+    return processedListRecords;
   }
 
   forms = {};
 
   lists = {};
 
-  saveRecordF1(record) {
-    if (!record.id) {
-      record.id = new Date().getTime();
-    }
+  f1_saveOnClick() {
+    this.forms.f1.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        // 由editForm直接调用api保存的情况
+        // call api to update or create record return {
+        //   success: true/false,
+        //   data: record/error message
+        // }
 
-    // success
-    return {
-      success: true,
-      data: record
-    };
+        // mock
+        if (!record.id) {
+          record.id = new Date().getTime();
+        }
+        const result = {
+          success: true,
+          data: record
+        };
 
-    // failed
-    // return {
-    //   success: false,
-    //   data: "error message"
-    // };
+        // const result = {
+        //   success: false,
+        //   data: "error message"
+        // };
+        if (result.success) {
+          this.forms.f1.setFormData(result.data);
+        } else {
+          this.forms.f1.setFormErrorMessage(result.data);
+        }
+      }
+    });
   }
 
   render() {
@@ -270,24 +274,27 @@ export default class PPExample extends React.Component {
       return (
         <div>
           <CustomForm
+            id="f1"
             parent={this}
             ref={ref => (this.forms.f1 = ref)}
-            config={this.state.f1Config}
-            data={this.state.f1Config.data}
+            config={this.state.f1}
+            data={this.state.f1.data}
             saveRecord={record => this.saveRecordF1(record)}
           />
           <CustomForm
+            id="f2"
             parent={this}
             ref={ref => (this.forms.f2 = ref)}
-            config={this.state.f1Config}
-            data={this.state.f1Config.data}
-            saveApi={"testUrl"}
+            config={this.state.f2}
+            data={this.state.f2.data}
+            saveRecord={record => this.saveRecordF2(record)}
           />
           <PPList
+            id="l1"
             parent={this}
             ref={ref => (this.lists.l1 = ref)}
-            config={this.state.f3Config.config}
-            data={this.state.f3Config.data}
+            config={this.state.l1.config}
+            data={this.state.l1.data}
             width={960}
             title={"测试列表"}
             // saveApi={"testUrl"}

@@ -6,24 +6,6 @@ import * as PPUtil from "./PPUtil";
 export default class CustomForm extends React.Component {
   state = { mode: "edit" };
 
-  saveOnClick() {
-    this.ppForm.props.form.validateFields((err, record) => {
-      if (!err) {
-        // 由editForm直接调用api保存的情况
-        // call api to update or create record return {
-        //   success: true/false,
-        //   data: record/error message
-        // }
-        const result = this.props.saveRecord(record);
-        if (result.success) {
-          this.setFormData(record);
-        } else {
-          this.setFormErrorMessage(result.data);
-        }
-      }
-    });
-  }
-
   // new, edit, display
   setMode(mode) {
     this.setState({
@@ -44,7 +26,7 @@ export default class CustomForm extends React.Component {
   }
 
   setFormData(record) {
-    if (!record || Object.keys(record).length === 0) {
+    if (PPUtil.isEmptyObject(record)) {
       // 没有数据的情况
       return;
     }
@@ -59,7 +41,7 @@ export default class CustomForm extends React.Component {
       .map(item => item.id);
     // 设置当前值
     const filteredFieldsValue = Object.keys(record)
-      .filter(key => formConfigFieldsId.includes(key))
+      .filter(key => formConfigFieldsId.includes(key) || key === "id")
       .reduce((obj, key) => {
         obj[key] = record[key];
         return obj;
@@ -83,7 +65,7 @@ export default class CustomForm extends React.Component {
           mode={this.state.mode}
           formConfig={this.props.config.formConfig}
           fieldsConfig={this.props.config.fieldsConfig}
-          fieldsValue={this.props.config.fieldsValue}
+          fieldsValue={this.props.config.data}
           labelWidth="100"
           wrappedComponentRef={ppForm => (this.ppForm = ppForm)}
         />

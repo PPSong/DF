@@ -115,7 +115,8 @@ export default class PPList extends React.Component {
   state = {
     showModal: false,
     modalTitle: null,
-    data: this.props.data
+    data: this.props.data,
+    curData: null
   };
 
   renderHeaderField(field) {
@@ -207,8 +208,18 @@ export default class PPList extends React.Component {
 
   addOrSet(record) {
     if (this.f1.state.mode === "edit") {
-      const index = this.props.data.findIndex(item => item.id == record.id);
-      this.props.data[index] = record;
+      const data = this.props.parent.state[this.props.id].data;
+      const index = data.findIndex(item => item.id == record.id);
+      data[index] = record;
+
+      console.log(data);
+
+      // this.props.parent.setState({
+      //   [this.props.id]: {
+      //     ...this.props.parent.state[this.props.id],
+      //     data: this.props.parent.state[this.props.id].data
+      //   }
+      // });
     } else if (this.f1.state.mode === "new") {
       this.props.data.push({ ...record });
     }
@@ -237,7 +248,9 @@ export default class PPList extends React.Component {
     // 等待modal中form加载完毕
     setTimeout(() => {
       this.f1.setMode("edit");
-      this.setFormData(record);
+      this.setState({
+        curData: record
+      });
     }, 100);
   }
 
@@ -246,6 +259,9 @@ export default class PPList extends React.Component {
     // 等待modal中form加载完毕
     setTimeout(() => {
       this.f1.setMode("new");
+      this.setState({
+        curData: null
+      });
     }, 100);
   }
 
@@ -296,12 +312,14 @@ export default class PPList extends React.Component {
             destroyOnClose={true}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
+            // list中的editform save交给Modal的onOk去处理不能在这里用saveRecord
           >
             <CustomForm
+              id="f1"
               parent={this}
               ref={ref => (this.f1 = ref)}
               config={config}
-              submit={result => this.submit(result)}
+              data={this.state.curData}
             />
           </Modal>
           {this.renderTop()}

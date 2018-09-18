@@ -189,9 +189,11 @@ export default class PPForm extends React.Component {
       <Button
         {...props}
         onClick={() => {
-          const func = this.props.parent[id + "OnClick"];
+          const parent = this.props.parent;
+          const grandpa = this.props.parent.props.parent;
+          const func = grandpa[parent.props.id + "_" + id + "OnClick"];
           if (func) {
-            func.bind(this.props.parent)();
+            func.bind(grandpa)();
           }
         }}
       >
