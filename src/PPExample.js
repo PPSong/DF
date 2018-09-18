@@ -65,6 +65,10 @@ export default class PPExample extends React.Component {
     });
   }
 
+  submitAll() {
+    console.log(PPUtil.submitAll(this));
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -88,7 +92,7 @@ export default class PPExample extends React.Component {
             title={"测试列表"}
             // saveApi={"testUrl"}
           />
-          <Button onClick={() => PPUtil.submitAll(this)}>保存</Button>
+          <Button onClick={() => this.submitAll()}>保存</Button>
         </div>
       );
     }

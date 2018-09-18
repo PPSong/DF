@@ -76,6 +76,27 @@ export function isEmptyObject(obj) {
   return !obj || Object.keys(obj).length === 0;
 }
 
+function convertFieldsConfig() {
+  const a = [
+    "mail, Input, 电子邮件: width_300, *",
+    "save, Button, 保存: type_primary"
+  ];
+
+  for (const itemString of a) {
+    const itemObj = {};
+    const parts = itemString.split(":");
+    const firstPart = parts[0];
+    const optionalPart = parts[1];
+
+    const firstTags = firstPart.split(",").map(item => item.trim());
+    for (let i = 0; i < 3; i++) {
+      const id = firstTags[0];
+      const type = firstTags[1];
+      const label = firstTags[2];
+    }
+  }
+}
+
 // mock
 export function getPageConfigAndData() {
   const f1FieldsConfig = {
@@ -380,8 +401,10 @@ export function submitAll(page) {
         }
       }
 
-      console.log(formRecords);
-      console.log(listRecords);
+      return {
+        formRecords,
+        listRecords
+      };
     }
   }
 }
