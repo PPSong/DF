@@ -76,36 +76,70 @@ export function isEmptyObject(obj) {
   return !obj || Object.keys(obj).length === 0;
 }
 
-export function getPageConfigAndDataSimple() {
-  const fieldsConfig = [
-    "mail, Input, 电子邮件: width_300, rule_*",
-    "f1, Input, f1: rule_*",
-    "f2, Input, f2: rule_*",
-    "f3, Input, f3: rule_*",
-    "f4, Input, f4: rule_*",
-    "f5, Input, f5: rule_*",
-    "save, Button, 保存: buttonType_primary"
-  ];
+export function parseFormConfig(source) {
+  const sections = [];
+  for (let section of source) {
+    const id = section.id;
+    const name = section.name;
+    const groups = [];
 
-  const targetFieldsConfig = {};
+    for (let groupItem of section.groups) {
+      const parts = groupItem.split("&").map(item => item.trim());
+      const groupPart = parts[0];
+      const groupTags = groupPart.split(".").map(item => item.trim());
+      const id = groupTags[0];
+      const justify = groupTags[1];
+      const colNum = parseInt(groupTags[2]);
 
-  const f1FormConfig = [
-    // section
-    {
-      id: "sec1",
-      name: "电子邮件",
-      // group
-      groups: ["sec1g0, start, 2: mail", "sec1g1, end, 12: save"]
+      const fieldsPart = parts[1];
+      const fieldNames = fieldsPart.split(".").map(item => item.trim());
+      const fields = [];
+      for (let item of fieldNames) {
+        if (item === "|") {
+          fields.push("br");
+        } else {
+          fields.push({ id: item });
+        }
+      }
+
+      groups.push({
+        id,
+        antRowProps: {
+          type: "flex",
+          justify
+        },
+        colNum,
+        fields
+      });
     }
-  ];
 
-  for (const item of fieldsConfig) {
-    const parts = item.split(":");
+    sections.push({
+      id,
+      name,
+      groups
+    });
+  }
+
+  const target = {
+    antFormProps: {
+      layout: "inline"
+    },
+    sections
+  };
+
+  return target;
+}
+
+export function parseFieldsConfig(source) {
+  const target = {};
+
+  for (const item of source) {
+    const parts = item.split("&");
     const firstPart = parts[0];
     const optionalPart = parts[1];
 
-    const firstTags = firstPart.split(",").map(item => item.trim());
-    let id, type, label, wrapperCol, buttonType, child;
+    const firstTags = firstPart.split(".").map(item => item.trim());
+    let id, type, label, wrapperCol, buttonType, child, autosize;
     const rules = [];
 
     id = firstTags[0];
@@ -116,7 +150,7 @@ export function getPageConfigAndDataSimple() {
       label = firstTags[2];
     }
 
-    const optionalTags = optionalPart.split(",").map(item => item.trim());
+    const optionalTags = optionalPart.split(".").map(item => item.trim());
     for (let i = 0; i < optionalTags.length; i++) {
       const parts = optionalTags[i].split("_");
       const name = parts[0];
@@ -132,291 +166,52 @@ export function getPageConfigAndDataSimple() {
         }
       } else if (name === "buttonType") {
         buttonType = value;
+      } else if (name === "autosize") {
+        autosize = JSON.parse(value);
       }
     }
 
-    targetFieldsConfig[id] = {
+    target[id] = {
       antFormItemProps: {
-        label: label,
-        wrapperCol: wrapperCol
+        label,
+        wrapperCol
       },
       antFieldDecorator: {
         options: {
-          rules: rules
+          rules
         }
       },
       antFieldItem: {
-        type: type,
+        type,
         props: {
-          type: buttonType
+          type: buttonType,
+          autosize
         },
-        child: child
+        child
       }
     };
   }
 
-  console.log(targetFieldsConfig);
-
-  return targetFieldsConfig;
+  return target;
 }
 
-// mock
-export function getPageConfigAndData() {
-  const f1FieldsConfig = getPageConfigAndDataSimple();
-  // const f1FieldsConfig = {
-  //   mail: {
-  //     antFormItemProps: {
-  //       label: "电子邮件",
-  //       wrapperCol: {
-  //         width: 300
-  //       }
-  //     },
-  //     antFieldDecorator: {
-  //       options: {
-  //         rules: [{ required: true, message: "Please input your 电子邮件!" }]
-  //       }
-  //     },
-  //     antFieldItem: {
-  //       type: "Input",
-  //       props: {}
-  //     }
-  //   },
-  //   save: {
-  //     antFormItemProps: {
-  //       label: ""
-  //     },
-  //     antFieldDecorator: {
-  //       options: {}
-  //     },
-  //     antFieldItem: {
-  //       type: "Button",
-  //       props: {
-  //         type: "primary"
-  //       },
-  //       child: "保存"
-  //     }
-  //   }
-  // };
-
-  const f1FormConfig = {
-    antFormProps: {
-      layout: "inline"
-    },
-    sections: [
-      {
-        id: "sec1",
-        name: "电子邮件",
-        groups: [
-          {
-            id: "sec1g0",
-            antRowProps: {
-              type: "flex",
-              justify: "start"
-            },
-            colNum: 2,
-            fields: [{ id: "mail" }, { id: "f1" }, { id: "f2" }, { id: "f3" }, { id: "f5" }]
-          },
-          {
-            id: "sec1g1",
-            antRowProps: {
-              type: "flex",
-              justify: "end"
-            },
-            colNum: 12,
-            fields: [{ id: "save" }]
-          }
-        ]
+export function parseListConfig(source) {
+  const fields = [];
+  for (let item of source) {
+    const tags = item.split(".").map(item => item.trim());
+    const id = tags[0];
+    const label = tags[1];
+    const span = parseInt(tags[2]);
+    fields.push({
+      id,
+      label,
+      props: {
+        span
       }
-    ]
-  };
+    });
+  }
 
-  const f1Data = {
-    id: 1,
-    mail: "1@1.com"
-  };
-
-  // l1 config
-  const l1ListConfig = {
-    fields: [
-      {
-        id: "f1",
-        label: "子类型",
-        props: {
-          span: 2
-        }
-      },
-      {
-        id: "f2",
-        label: "开始日期",
-        props: {
-          span: 2
-        }
-      },
-      {
-        id: "f3",
-        label: "结束日期",
-        props: {
-          span: 2
-        }
-      },
-      {
-        id: "f4",
-        label: "内容",
-        props: {
-          span: 16
-        }
-      },
-      {
-        id: "f5",
-        label: "操作",
-        props: {
-          span: 2
-        }
-      }
-    ]
-  };
-
-  const l1Data = [
-    {
-      id: "1",
-      f1: "v11",
-      f2: "v12",
-      f3: "v13",
-      f4: "v14"
-    },
-    {
-      id: "2",
-      f1: "v21",
-      f2: "v22",
-      f3: "v23",
-      f4: "v24"
-    }
-  ];
-
-  return {
-    formsConfig: {
-      f1: {
-        fieldsConfig: f1FieldsConfig,
-        formConfig: f1FormConfig,
-        data: f1Data
-      }
-    },
-    listsConfig: {
-      l1: {
-        listConfig: l1ListConfig,
-        data: l1Data,
-        editFormConfig: {
-          formConfig: {
-            antFormProps: {
-              layout: "inline"
-            },
-            sections: [
-              {
-                id: "sec1",
-                name: "电子邮件",
-                groups: [
-                  {
-                    id: "sec1g0",
-                    antRowProps: {
-                      type: "flex",
-                      justify: "start"
-                    },
-                    colNum: 2,
-                    fields: [
-                      { id: "f1" },
-                      { id: "f2" },
-                      { id: "f3" },
-                      { id: "f4" }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          fieldsConfig: {
-            f1: {
-              antFormItemProps: {
-                label: "电子邮件",
-                wrapperCol: {
-                  width: 300
-                }
-              },
-              antFieldDecorator: {
-                options: {
-                  rules: [
-                    { required: true, message: "Please input your 电子邮件!" }
-                  ]
-                }
-              },
-              antFieldItem: {
-                type: "Input",
-                props: {}
-              }
-            },
-            f2: {
-              antFormItemProps: {
-                label: "开始日期",
-                wrapperCol: {
-                  width: 300
-                }
-              },
-              antFieldDecorator: {
-                options: {
-                  rules: [
-                    { required: true, message: "Please input your 开始日期!" }
-                  ]
-                }
-              },
-              antFieldItem: {
-                type: "Input",
-                props: {}
-              }
-            },
-            f3: {
-              antFormItemProps: {
-                label: "结束日期",
-                wrapperCol: {
-                  width: 300
-                }
-              },
-              antFieldDecorator: {
-                options: {
-                  rules: [
-                    { required: true, message: "Please input your 结束日期!" }
-                  ]
-                }
-              },
-              antFieldItem: {
-                type: "Input",
-                props: {}
-              }
-            },
-            f4: {
-              antFormItemProps: {
-                label: "内容",
-                wrapperCol: {
-                  width: 300
-                }
-              },
-              antFieldDecorator: {
-                options: {
-                  rules: [
-                    { required: true, message: "Please input your 内容!" }
-                  ]
-                }
-              },
-              antFieldItem: {
-                type: "TextArea",
-                props: {
-                  autosize: { minRows: 2, maxRows: 6 }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
+  return { fields };
 }
 
 export function submitAll(page) {
