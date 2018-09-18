@@ -13,27 +13,6 @@ export default class CustomForm extends React.Component {
     });
   }
 
-  submit() {
-    this.ppForm.props.form.validateFields((err, values) => {
-      if (!err) {
-        if (this.props.setFormData) {
-          // 如果上级容器设置了setFormData就把values传递给上级处理
-          this.props.setFormData(values);
-        } else {
-          // 自己处理递交事件
-          if (this.state.mode === "edit") {
-            // edit的情况
-          } else if (this.state.mode === "new") {
-            // new的情况
-          }
-        }
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-
   setFormErrorMessage(msg) {
     this.ppForm.setFormErrorMessage(msg);
   }
@@ -44,6 +23,49 @@ export default class CustomForm extends React.Component {
         id: options
       }
     });
+  }
+
+  setApiUpdatedRecord(apiUrl, record) {
+    // mock
+    if (!record.id) {
+      record.id = new Date().getTime();
+    }
+
+    this.set(record);
+  }
+
+  setLocalUpdatedRecord(record) {
+    if (!record.id) {
+      // todo 在整张页面递交时, 需要把这些fakeid设置为0
+      record.id = "fake" + new Date().getTime();
+    }
+
+    this.set(record);
+  }
+
+  setFormData(record) {
+    const formConfigFieldsId = this.props.config.formConfig.sections
+      .reduce(
+        (pre, item) =>
+          pre.concat(
+            item.groups.reduce((pre, item) => pre.concat(item.fields), [])
+          ),
+        []
+      )
+      .map(item => item.id);
+    // 设置当前值
+    const filteredFieldsValue = Object.keys(record)
+      .filter(key => formConfigFieldsId.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = record[key].value;
+        return obj;
+      }, {});
+
+    this.ppForm.props.form.setFieldsValue(filteredFieldsValue);
+  }
+
+  set(record) {
+    this.props.data = record;
   }
 
   render() {

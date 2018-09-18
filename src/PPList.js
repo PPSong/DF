@@ -170,23 +170,46 @@ export default class PPList extends React.Component {
     );
   }
 
-  handleOk = () => {
-    // 成功的话是save之后的record, 失败的话是false
-    const result = this.f1.submit();
-    if (result) {
-      this.addOrSet(result);
-      this.hideModal();
+  setApiUpdatedRecord(apiUrl, record) {
+    // mock
+    if (!record.id) {
+      record.id = new Date().getTime();
     }
+
+    this.addOrSet(record);
+    this.hideModal();
+  }
+
+  setLocalUpdatedRecord(record) {
+    if (!record.id) {
+      // todo 在整张页面递交时, 需要把这些fakeid设置为0
+      record.id = 'fake' + new Date().getTime();
+    }
+
+    this.addOrSet(record);
+    this.hideModal();
+  }
+
+  handleOk = () => {
+    this.f1.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        // 处理接受到的result(record信息), 直接调用save api或者先放入父级本地数据容器, 失败不要hideModel, 否则hideModel(如果是new的情况, 把从服务器得到的id填入record)
+        if (this.props.saveApi) {
+          // 由editForm直接调用api保存的情况
+          this.setApiUpdatedRecord(this.props.saveApi, record);
+        } else {
+          this.setLocalUpdatedRecord(record);
+        }
+      }
+    });
   };
 
   addOrSet(record) {
-    if (this.state.mode === "edit") {
-      const index = this.props.parent.data.findIndex(
-        item => item.id == record.id
-      );
-      this.props.parent.data[index] = record;
-    } else if (this.state.mode === "new") {
-      this.props.parent.data.push({ ...record, id: 0 });
+    if (this.f1.state.mode === "edit") {
+      const index = this.props.data.findIndex(item => item.id == record.id);
+      this.props.data[index] = record;
+    } else if (this.f1.state.mode === "new") {
+      this.props.data.push({ ...record });
     }
   }
 
@@ -277,6 +300,7 @@ export default class PPList extends React.Component {
               parent={this}
               ref={ref => (this.f1 = ref)}
               config={config}
+              submit={result => this.submit(result)}
             />
           </Modal>
           {this.renderTop()}

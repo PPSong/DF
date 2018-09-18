@@ -146,7 +146,7 @@ export default class PPExample extends React.Component {
       f1Config: {
         fieldsConfig: f1FieldsConfig,
         formConfig: f1FormConfig,
-        fieldsValue: f1FieldsValue
+        data: f1FieldsValue
       },
       f2Config: {
         fieldsConfig: f1FieldsConfig,
@@ -181,6 +181,8 @@ export default class PPExample extends React.Component {
             parent={this}
             ref={ref => (this.f1 = ref)}
             config={this.state.f1Config}
+            data={this.state.f1Config.data}
+            saveApi={"testUrl"}
           />
           <PPList
             parent={this}
@@ -188,6 +190,7 @@ export default class PPExample extends React.Component {
             data={this.state.f3Config.data}
             width={960}
             title={"测试列表"}
+            saveApi={"testUrl"}
           />
         </div>
       );
