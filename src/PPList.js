@@ -14,110 +14,129 @@ import {
 } from "antd";
 import CustomForm from "./CustomForm";
 
-const config = {
-  fieldsConfig: {
-    f1: {
-      antFormItemProps: {
-        label: "电子邮件",
-        wrapperCol: {
-          width: 300
-        }
-      },
-      antFieldDecorator: {
-        options: {
-          rules: [{ required: true, message: "Please input your 电子邮件!" }]
-        }
-      },
-      antFieldItem: {
-        type: "Input",
-        props: {}
-      }
-    },
-    f2: {
-      antFormItemProps: {
-        label: "开始日期",
-        wrapperCol: {
-          width: 300
-        }
-      },
-      antFieldDecorator: {
-        options: {
-          rules: [{ required: true, message: "Please input your 开始日期!" }]
-        }
-      },
-      antFieldItem: {
-        type: "Input",
-        props: {}
-      }
-    },
-    f3: {
-      antFormItemProps: {
-        label: "结束日期",
-        wrapperCol: {
-          width: 300
-        }
-      },
-      antFieldDecorator: {
-        options: {
-          rules: [{ required: true, message: "Please input your 结束日期!" }]
-        }
-      },
-      antFieldItem: {
-        type: "Input",
-        props: {}
-      }
-    },
-    f4: {
-      antFormItemProps: {
-        label: "内容",
-        wrapperCol: {
-          width: 300
-        }
-      },
-      antFieldDecorator: {
-        options: {
-          rules: [{ required: true, message: "Please input your 内容!" }]
-        }
-      },
-      antFieldItem: {
-        type: "TextArea",
-        props: {
-          autosize: { minRows: 2, maxRows: 6 }
-        }
-      }
-    }
-  },
-  formConfig: {
-    antFormProps: {
-      layout: "inline"
-    },
-    sections: [
-      {
-        id: "sec1",
-        name: "电子邮件",
-        groups: [
-          {
-            id: "sec1g0",
-            antRowProps: {
-              type: "flex",
-              justify: "start"
-            },
-            colNum: 2,
-            fields: [{ id: "f1" }, { id: "f2" }, { id: "f3" }, { id: "f4" }]
-          }
-        ]
-      }
-    ]
-  }
-};
-
 export default class PPList extends React.Component {
-  state = {
-    showModal: false,
-    modalTitle: null,
-    data: this.props.data,
-    curData: null
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      showModal: false,
+      modalTitle: null,
+      data: this.props.parent.listsConfig[this.props.id].data,
+      curData: null
+    };
+
+    // editForm
+    this.f1 = null;
+
+    this.formsConfig = {
+      f1: {
+        formConfig: {
+          antFormProps: {
+            layout: "inline"
+          },
+          sections: [
+            {
+              id: "sec1",
+              name: "电子邮件",
+              groups: [
+                {
+                  id: "sec1g0",
+                  antRowProps: {
+                    type: "flex",
+                    justify: "start"
+                  },
+                  colNum: 2,
+                  fields: [
+                    { id: "f1" },
+                    { id: "f2" },
+                    { id: "f3" },
+                    { id: "f4" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        fieldsConfig: {
+          f1: {
+            antFormItemProps: {
+              label: "电子邮件",
+              wrapperCol: {
+                width: 300
+              }
+            },
+            antFieldDecorator: {
+              options: {
+                rules: [
+                  { required: true, message: "Please input your 电子邮件!" }
+                ]
+              }
+            },
+            antFieldItem: {
+              type: "Input",
+              props: {}
+            }
+          },
+          f2: {
+            antFormItemProps: {
+              label: "开始日期",
+              wrapperCol: {
+                width: 300
+              }
+            },
+            antFieldDecorator: {
+              options: {
+                rules: [
+                  { required: true, message: "Please input your 开始日期!" }
+                ]
+              }
+            },
+            antFieldItem: {
+              type: "Input",
+              props: {}
+            }
+          },
+          f3: {
+            antFormItemProps: {
+              label: "结束日期",
+              wrapperCol: {
+                width: 300
+              }
+            },
+            antFieldDecorator: {
+              options: {
+                rules: [
+                  { required: true, message: "Please input your 结束日期!" }
+                ]
+              }
+            },
+            antFieldItem: {
+              type: "Input",
+              props: {}
+            }
+          },
+          f4: {
+            antFormItemProps: {
+              label: "内容",
+              wrapperCol: {
+                width: 300
+              }
+            },
+            antFieldDecorator: {
+              options: {
+                rules: [{ required: true, message: "Please input your 内容!" }]
+              }
+            },
+            antFieldItem: {
+              type: "TextArea",
+              props: {
+                autosize: { minRows: 2, maxRows: 6 }
+              }
+            }
+          }
+        }
+      }
+    };
+  }
 
   renderHeaderField(field) {
     let key = field.id;
@@ -140,9 +159,9 @@ export default class PPList extends React.Component {
   }
 
   renderOneRecord(record, index) {
-    const oneRecord = this.props.config.fields.map(item =>
-      this.renderRecordField(item, record)
-    );
+    const oneRecord = this.props.parent.listsConfig[
+      this.props.id
+    ].listConfig.fields.map(item => this.renderRecordField(item, record));
     // 添加编辑link, 宽度固定为span=1
     oneRecord.push(
       <Col key={"edit"} span={1}>
@@ -161,13 +180,15 @@ export default class PPList extends React.Component {
   renderHeader() {
     return (
       <Row>
-        {this.props.config.fields.map(item => this.renderHeaderField(item))}
+        {this.props.parent.listsConfig[this.props.id].listConfig.fields.map(
+          item => this.renderHeaderField(item)
+        )}
       </Row>
     );
   }
 
   renderBody() {
-    return this.props.data.map((item, index) =>
+    return this.state.data.map((item, index) =>
       this.renderOneRecord(item, index)
     );
   }
@@ -184,7 +205,6 @@ export default class PPList extends React.Component {
   }
 
   setLocalUpdatedRecord(record) {
-    console.log("setLocalUpdatedRecord");
     if (!record.id) {
       // todo 在整张页面递交时, 需要把这些fakeid设置为0
       record.id = "fake" + new Date().getTime();
@@ -209,8 +229,8 @@ export default class PPList extends React.Component {
   };
 
   addOrSet(record) {
-    // todo: 奇怪, 为什么这里没用setState, 页面的list数据也会更新显示
-    const data = this.props.parent.state[this.props.id].data;
+    // 这里没用setState, 页面的list数据也会更新显示, 因为modal消失后, PPList会forceUpdate
+    const data = this.state.data;
     if (this.f1.state.mode === "edit") {
       const index = data.findIndex(item => item.id == record.id);
       data[index] = record;
@@ -238,46 +258,25 @@ export default class PPList extends React.Component {
   };
 
   editRecord(record) {
+    this.setState({
+      curData: record
+    });
     this.showModal();
     // 等待modal中form加载完毕
     setTimeout(() => {
       this.f1.setMode("edit");
-      this.setState({
-        curData: record
-      });
     }, 100);
   }
 
   newRecord() {
+    this.setState({
+      curData: null
+    });
     this.showModal();
     // 等待modal中form加载完毕
     setTimeout(() => {
       this.f1.setMode("new");
-      this.setState({
-        curData: null
-      });
     }, 100);
-  }
-
-  setFormData(record) {
-    const formConfigFieldsId = config.formConfig.sections
-      .reduce(
-        (pre, item) =>
-          pre.concat(
-            item.groups.reduce((pre, item) => pre.concat(item.fields), [])
-          ),
-        []
-      )
-      .map(item => item.id);
-
-    const filteredFieldsValue = Object.keys(record)
-      .filter(key => formConfigFieldsId.includes(key) || key == "id")
-      .reduce((obj, key) => {
-        obj[key] = record[key];
-        return obj;
-      }, {});
-
-    this.f1.ppForm.props.form.setFieldsValue(filteredFieldsValue);
   }
 
   renderTop() {
@@ -296,33 +295,28 @@ export default class PPList extends React.Component {
   }
 
   render() {
-    if (this.props.config) {
-      return (
-        <div>
-          <Modal
-            width={this.props.width ? this.props.width : 520}
-            title={this.state.modalTitle}
-            visible={this.state.showModal}
-            destroyOnClose={true}
-            onOk={this.handleOk}
-            onCancel={this.handleCancel}
-            // list中的editform save交给Modal的onOk去处理不能在这里用saveRecord
-          >
-            <CustomForm
-              id="f1"
-              parent={this}
-              ref={ref => (this.f1 = ref)}
-              config={config}
-              data={this.state.curData}
-            />
-          </Modal>
-          {this.renderTop()}
-          {this.renderHeader()}
-          {this.renderBody()}
-        </div>
-      );
-    } else {
-      return <Spin />;
-    }
+    return (
+      <div>
+        <Modal
+          width={this.props.width ? this.props.width : 520}
+          title={this.state.modalTitle}
+          visible={this.state.showModal}
+          destroyOnClose={true}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          // list中的editform save交给Modal的onOk去处理不能在这里用saveRecord
+        >
+          <CustomForm
+            id="f1"
+            parent={this}
+            ref={ref => (this.f1 = ref)}
+            data={this.state.curData}
+          />
+        </Modal>
+        {this.renderTop()}
+        {this.renderHeader()}
+        {this.renderBody()}
+      </div>
+    );
   }
 }

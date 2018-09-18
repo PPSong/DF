@@ -4,7 +4,19 @@ import { Form, Icon, Input, Button, Select, Spin } from "antd";
 import * as PPUtil from "./PPUtil";
 
 export default class CustomForm extends React.Component {
-  state = { mode: "edit" };
+  constructor(props) {
+    super(props);
+
+    this.formConfig = this.props.parent.formsConfig[this.props.id].formConfig;
+    this.fieldsConfig = this.props.parent.formsConfig[
+      this.props.id
+    ].fieldsConfig;
+    this.data = this.props.data || this.props.parent.formsConfig[this.props.id].data;
+
+    this.state = {
+      model: "edit",
+    };
+  }
 
   // new, edit, display
   setMode(mode) {
@@ -30,7 +42,7 @@ export default class CustomForm extends React.Component {
       // 没有数据的情况
       return;
     }
-    const formConfigFieldsId = this.props.config.formConfig.sections
+    const formConfigFieldsId = this.formConfig.sections
       .reduce(
         (pre, item) =>
           pre.concat(
@@ -53,7 +65,7 @@ export default class CustomForm extends React.Component {
   componentDidMount() {
     // 等待form加载完毕
     setTimeout(() => {
-      this.setFormData(this.props.data);
+      this.setFormData(this.data);
     }, 100);
   }
 
@@ -63,9 +75,9 @@ export default class CustomForm extends React.Component {
         <this.EnhancedPPForm
           parent={this}
           mode={this.state.mode}
-          formConfig={this.props.config.formConfig}
-          fieldsConfig={this.props.config.fieldsConfig}
-          fieldsValue={this.props.config.data}
+          formConfig={this.formConfig}
+          fieldsConfig={this.fieldsConfig}
+          data={this.data}
           labelWidth="100"
           wrappedComponentRef={ppForm => (this.ppForm = ppForm)}
         />

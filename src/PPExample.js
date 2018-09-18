@@ -6,12 +6,20 @@ import PPList from "./PPList";
 import * as PPUtil from "./PPUtil";
 
 export default class PPExample extends React.Component {
-  state = {
-    loading: true,
-    f1: null,
-    f2: null,
-    l3: null
-  };
+  constructor(props) {
+    super(props);
+    this.formsConfig = {};
+
+    this.listsConfig = {};
+
+    this.forms = {};
+
+    this.lists = {};
+
+    this.state = {
+      loading: true
+    };
+  }
 
   componentDidMount() {
     // f1 config
@@ -49,6 +57,7 @@ export default class PPExample extends React.Component {
         }
       }
     };
+
     const f1FormConfig = {
       antFormProps: {
         layout: "inline"
@@ -81,14 +90,13 @@ export default class PPExample extends React.Component {
       ]
     };
 
-    const f1FieldsValue = {
+    const f1Data = {
       id: 1,
       mail: "1@1.com"
     };
-    // f2 config
 
-    // f3 config
-    const f3ListConfig = {
+    // l1 config
+    const l1ListConfig = {
       fields: [
         {
           id: "f1",
@@ -128,7 +136,7 @@ export default class PPExample extends React.Component {
       ]
     };
 
-    const f3Data = [
+    const l1Data = [
       {
         id: "1",
         f1: "v11",
@@ -145,41 +153,24 @@ export default class PPExample extends React.Component {
       }
     ];
 
-    this.setState({
+    this.formsConfig = {
       f1: {
         fieldsConfig: f1FieldsConfig,
         formConfig: f1FormConfig,
-        data: f1FieldsValue
-      },
-      f2: {
-        fieldsConfig: f1FieldsConfig,
-        formConfig: f1FormConfig,
-        data: f1FieldsValue
-      },
+        data: f1Data
+      }
+    };
+
+    this.listsConfig = {
       l1: {
-        config: f3ListConfig,
-        data: f3Data
+        listConfig: l1ListConfig,
+        data: l1Data
       }
-    });
+    };
 
-    // todo: 这个地方不严谨, 由于setState是异步操作, 可能上面的获取动作还没完成, 暂时用timeout来规避
-    setTimeout(() => {
-      this.setState({
-        loading: false
-      });
-    }, 100);
-  }
-
-  setData(data) {
-    data.id = new Date().getTime();
     this.setState({
-      f1Config: {
-        ...this.state.f1Config,
-        data: data
-      }
+      loading: false
     });
-
-    console.log(this.state.f1Config.data);
   }
 
   submitAll() {
@@ -198,39 +189,39 @@ export default class PPExample extends React.Component {
     }
 
     for (const key in this.lists) {
-      listRecords[key] = this.lists[key].state.data;
+      // 把各个list数组复制出来, 以便后面处理fakeId
+      listRecords[key] = [];
+      for (const item of this.lists[key].state.data) {
+        listRecords[key].push({ ...item });
+      }
     }
 
     if (!PPUtil.isEmptyObject(errs)) {
       console.log(errs);
     } else {
-      // 处理listRecords中的fakeId
-      const processedListRecords = this.processFakeId(listRecords);
-
-      console.log(formRecords);
-      console.log(processedListRecords);
-    }
-  }
-
-  processFakeId(listRecords) {
-    const processedListRecords = {};
-    for (const list in listRecords) {
-      processedListRecords[list] = [];
-      for (const item of listRecords[list]) {
-        if (item.id.startsWith("fake")) {
+      // todo: 处理formRecords中的空id
+      for (const key in formRecords) {
+        if (!formRecords[key].id) {
           // todo: 确定新增记录的id是数字0还是字符'0'
-          processedListRecords[list].push({ ...item, id: 0 });
-        } else {
-          processedListRecords[list].push(item);
+          formRecords[key].id = 0;
         }
       }
+
+      // 处理listRecords中的fakeId
+      for (const list in listRecords) {
+        for (const item of listRecords[list]) {
+          const tmpId = "" + item.id;
+          if (tmpId.startsWith("fake")) {
+            // todo: 确定新增记录的id是数字0还是字符'0'
+            item.id = 0;
+          }
+        }
+      }
+
+      console.log(formRecords);
+      console.log(listRecords);
     }
-    return processedListRecords;
   }
-
-  forms = {};
-
-  lists = {};
 
   f1_saveOnClick() {
     this.forms.f1.ppForm.props.form.validateFields((err, record) => {
@@ -259,6 +250,7 @@ export default class PPExample extends React.Component {
         } else {
           this.forms.f1.setFormErrorMessage(result.data);
         }
+        console.log(result.data);
       }
     });
   }
@@ -277,24 +269,11 @@ export default class PPExample extends React.Component {
             id="f1"
             parent={this}
             ref={ref => (this.forms.f1 = ref)}
-            config={this.state.f1}
-            data={this.state.f1.data}
-            saveRecord={record => this.saveRecordF1(record)}
-          />
-          <CustomForm
-            id="f2"
-            parent={this}
-            ref={ref => (this.forms.f2 = ref)}
-            config={this.state.f2}
-            data={this.state.f2.data}
-            saveRecord={record => this.saveRecordF2(record)}
           />
           <PPList
             id="l1"
             parent={this}
             ref={ref => (this.lists.l1 = ref)}
-            config={this.state.l1.config}
-            data={this.state.l1.data}
             width={960}
             title={"测试列表"}
             // saveApi={"testUrl"}
