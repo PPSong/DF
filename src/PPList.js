@@ -173,6 +173,7 @@ export default class PPList extends React.Component {
   }
 
   setApiUpdatedRecord(apiUrl, record) {
+    console.log("setApiUpdatedRecord");
     // mock
     if (!record.id) {
       record.id = new Date().getTime();
@@ -183,6 +184,7 @@ export default class PPList extends React.Component {
   }
 
   setLocalUpdatedRecord(record) {
+    console.log("setLocalUpdatedRecord");
     if (!record.id) {
       // todo 在整张页面递交时, 需要把这些fakeid设置为0
       record.id = "fake" + new Date().getTime();
@@ -207,21 +209,13 @@ export default class PPList extends React.Component {
   };
 
   addOrSet(record) {
+    // todo: 奇怪, 为什么这里没用setState, 页面的list数据也会更新显示
+    const data = this.props.parent.state[this.props.id].data;
     if (this.f1.state.mode === "edit") {
-      const data = this.props.parent.state[this.props.id].data;
       const index = data.findIndex(item => item.id == record.id);
       data[index] = record;
-
-      console.log(data);
-
-      // this.props.parent.setState({
-      //   [this.props.id]: {
-      //     ...this.props.parent.state[this.props.id],
-      //     data: this.props.parent.state[this.props.id].data
-      //   }
-      // });
     } else if (this.f1.state.mode === "new") {
-      this.props.data.push({ ...record });
+      data.push({ ...record });
     }
   }
 
