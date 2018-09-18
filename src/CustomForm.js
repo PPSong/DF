@@ -6,6 +6,24 @@ import * as PPUtil from "./PPUtil";
 export default class CustomForm extends React.Component {
   state = { mode: "edit" };
 
+  saveOnClick() {
+    this.ppForm.props.form.validateFields((err, record) => {
+      if (!err) {
+        // 由editForm直接调用api保存的情况
+        // call api to update or create record return {
+        //   success: true/false,
+        //   data: record/error message
+        // }
+        const result = this.props.saveRecord(record);
+        if (result.success) {
+          this.setFormData(record);
+        } else {
+          this.setFormErrorMessage(result.data);
+        }
+      }
+    });
+  }
+
   // new, edit, display
   setMode(mode) {
     this.setState({
@@ -25,16 +43,8 @@ export default class CustomForm extends React.Component {
     });
   }
 
-  setApiUpdatedRecord(apiUrl, record) {
-    // mock
-    if (!record.id) {
-      record.id = new Date().getTime();
-    }
-    this.setFormData(record);
-  }
-
   setFormData(record) {
-    if (!record || Object.keys(record).length === 0 ) {
+    if (!record || Object.keys(record).length === 0) {
       // 没有数据的情况
       return;
     }
@@ -56,20 +66,6 @@ export default class CustomForm extends React.Component {
       }, {});
 
     this.ppForm.props.form.setFieldsValue(filteredFieldsValue);
-  }
-
-  saveOnClick() {
-    this.ppForm.props.form.validateFields((err, record) => {
-      if (!err) {
-        // 处理接受到的result(record信息), 直接调用save api或者先放入父级本地数据容器, 失败不要hideModel, 否则hideModel(如果是new的情况, 把从服务器得到的id填入record)
-        if (this.props.saveApi) {
-          // 由editForm直接调用api保存的情况
-          this.setApiUpdatedRecord(this.props.saveApi, record);
-        } else {
-          // 如果需要吧form数据传给父级, 不应该在这里设置save按钮
-        }
-      }
-    });
   }
 
   componentDidMount() {

@@ -226,9 +226,9 @@ export default class PPExample extends React.Component {
 
   processFakeId(listRecords) {
     for (const list in listRecords) {
-      console.log(listRecords[list])
+      console.log(listRecords[list]);
       for (const item of listRecords[list]) {
-        console.log(item)
+        console.log(item);
         if (item.id.startsWith("fake")) {
           // todo: 确定新增记录的id是数字0还是字符'0'
           item.id = 0;
@@ -240,6 +240,24 @@ export default class PPExample extends React.Component {
   forms = {};
 
   lists = {};
+
+  saveRecordF1(record) {
+    if (!record.id) {
+      record.id = new Date().getTime();
+    }
+
+    // success
+    return {
+      success: true,
+      data: record
+    };
+
+    // failed
+    // return {
+    //   success: false,
+    //   data: "error message"
+    // };
+  }
 
   render() {
     if (this.state.loading) {
@@ -256,7 +274,7 @@ export default class PPExample extends React.Component {
             ref={ref => (this.forms.f1 = ref)}
             config={this.state.f1Config}
             data={this.state.f1Config.data}
-            saveApi={"testUrl"}
+            saveRecord={record => this.saveRecordF1(record)}
           />
           <CustomForm
             parent={this}
