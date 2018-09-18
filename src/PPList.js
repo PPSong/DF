@@ -25,117 +25,11 @@ export default class PPList extends React.Component {
     };
 
     // editForm
-    this.f1 = null;
-
-    this.formsConfig = {
-      f1: {
-        formConfig: {
-          antFormProps: {
-            layout: "inline"
-          },
-          sections: [
-            {
-              id: "sec1",
-              name: "电子邮件",
-              groups: [
-                {
-                  id: "sec1g0",
-                  antRowProps: {
-                    type: "flex",
-                    justify: "start"
-                  },
-                  colNum: 2,
-                  fields: [
-                    { id: "f1" },
-                    { id: "f2" },
-                    { id: "f3" },
-                    { id: "f4" }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        fieldsConfig: {
-          f1: {
-            antFormItemProps: {
-              label: "电子邮件",
-              wrapperCol: {
-                width: 300
-              }
-            },
-            antFieldDecorator: {
-              options: {
-                rules: [
-                  { required: true, message: "Please input your 电子邮件!" }
-                ]
-              }
-            },
-            antFieldItem: {
-              type: "Input",
-              props: {}
-            }
-          },
-          f2: {
-            antFormItemProps: {
-              label: "开始日期",
-              wrapperCol: {
-                width: 300
-              }
-            },
-            antFieldDecorator: {
-              options: {
-                rules: [
-                  { required: true, message: "Please input your 开始日期!" }
-                ]
-              }
-            },
-            antFieldItem: {
-              type: "Input",
-              props: {}
-            }
-          },
-          f3: {
-            antFormItemProps: {
-              label: "结束日期",
-              wrapperCol: {
-                width: 300
-              }
-            },
-            antFieldDecorator: {
-              options: {
-                rules: [
-                  { required: true, message: "Please input your 结束日期!" }
-                ]
-              }
-            },
-            antFieldItem: {
-              type: "Input",
-              props: {}
-            }
-          },
-          f4: {
-            antFormItemProps: {
-              label: "内容",
-              wrapperCol: {
-                width: 300
-              }
-            },
-            antFieldDecorator: {
-              options: {
-                rules: [{ required: true, message: "Please input your 内容!" }]
-              }
-            },
-            antFieldItem: {
-              type: "TextArea",
-              props: {
-                autosize: { minRows: 2, maxRows: 6 }
-              }
-            }
-          }
-        }
-      }
-    };
+    this.editForm = null;
+    const editFormConfig = this.props.parent.listsConfig[this.props.id]
+      .editFormConfig;
+    this.formConfig = editFormConfig.formConfig;
+    this.fieldsConfig = editFormConfig.fieldsConfig;
   }
 
   renderHeaderField(field) {
@@ -215,7 +109,7 @@ export default class PPList extends React.Component {
   }
 
   handleOk = () => {
-    this.f1.ppForm.props.form.validateFields((err, record) => {
+    this.editForm.ppForm.props.form.validateFields((err, record) => {
       if (!err) {
         // 处理接受到的result(record信息), 直接调用save api或者先放入父级本地数据容器, 失败不要hideModel, 否则hideModel(如果是new的情况, 把从服务器得到的id填入record)
         if (this.props.saveApi) {
@@ -231,10 +125,10 @@ export default class PPList extends React.Component {
   addOrSet(record) {
     // 这里没用setState, 页面的list数据也会更新显示, 因为modal消失后, PPList会forceUpdate
     const data = this.state.data;
-    if (this.f1.state.mode === "edit") {
+    if (this.editForm.state.mode === "edit") {
       const index = data.findIndex(item => item.id == record.id);
       data[index] = record;
-    } else if (this.f1.state.mode === "new") {
+    } else if (this.editForm.state.mode === "new") {
       data.push({ ...record });
     }
   }
@@ -264,7 +158,7 @@ export default class PPList extends React.Component {
     this.showModal();
     // 等待modal中form加载完毕
     setTimeout(() => {
-      this.f1.setMode("edit");
+      this.editForm.setMode("edit");
     }, 100);
   }
 
@@ -275,7 +169,7 @@ export default class PPList extends React.Component {
     this.showModal();
     // 等待modal中form加载完毕
     setTimeout(() => {
-      this.f1.setMode("new");
+      this.editForm.setMode("new");
     }, 100);
   }
 
@@ -307,9 +201,11 @@ export default class PPList extends React.Component {
           // list中的editform save交给Modal的onOk去处理不能在这里用saveRecord
         >
           <CustomForm
-            id="f1"
+            id="editForm"
             parent={this}
-            ref={ref => (this.f1 = ref)}
+            ref={ref => (this.editForm = ref)}
+            formConfig={this.formConfig}
+            fieldsConfig={this.fieldsConfig}
             data={this.state.curData}
           />
         </Modal>

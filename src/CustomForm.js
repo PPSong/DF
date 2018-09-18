@@ -7,14 +7,20 @@ export default class CustomForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.formConfig = this.props.parent.formsConfig[this.props.id].formConfig;
-    this.fieldsConfig = this.props.parent.formsConfig[
-      this.props.id
-    ].fieldsConfig;
-    this.data = this.props.data || this.props.parent.formsConfig[this.props.id].data;
+    this.formConfig =
+      this.props.formConfig ||
+      this.props.parent.formsConfig[this.props.id].formConfig;
+    this.fieldsConfig =
+      this.props.fieldsConfig ||
+      this.props.parent.formsConfig[this.props.id].fieldsConfig;
+    this.data = this.props.data;
+    // 这里不能用if (!this.data), 因为this.props.data可能是null
+    if (!("data" in this.props)) {
+      this.data = this.props.parent.formsConfig[this.props.id].data;
+    }
 
     this.state = {
-      model: "edit",
+      model: "edit"
     };
   }
 
