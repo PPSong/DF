@@ -150,24 +150,26 @@ export function parseFieldsConfig(source) {
       label = firstTags[2];
     }
 
-    const optionalTags = optionalPart.split(".").map(item => item.trim());
-    for (let i = 0; i < optionalTags.length; i++) {
-      const parts = optionalTags[i].split("_");
-      const name = parts[0];
-      const value = parts[1];
+    if (optionalPart) {
+      const optionalTags = optionalPart.split(".").map(item => item.trim());
+      for (let i = 0; i < optionalTags.length; i++) {
+        const parts = optionalTags[i].split("_");
+        const name = parts[0];
+        const value = parts[1];
 
-      if (name === "width") {
-        wrapperCol = {
-          width: parseInt(value)
-        };
-      } else if (name === "rule") {
-        if (value === "*") {
-          rules.push({ required: true, message: `请输入${label}` });
+        if (name === "width") {
+          wrapperCol = {
+            width: parseInt(value)
+          };
+        } else if (name === "rule") {
+          if (value === "*") {
+            rules.push({ required: true, message: `请输入${label}` });
+          }
+        } else if (name === "buttonType") {
+          buttonType = value;
+        } else if (name === "autosize") {
+          autosize = JSON.parse(value);
         }
-      } else if (name === "buttonType") {
-        buttonType = value;
-      } else if (name === "autosize") {
-        autosize = JSON.parse(value);
       }
     }
 

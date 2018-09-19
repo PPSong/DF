@@ -29,7 +29,8 @@ export default class PPExample extends React.Component {
       "f3. Input. f3& rule_*",
       "f4. Input. f4& rule_*",
       "f5. Input. f5& rule_*",
-      "save. Button. 保存& buttonType_primary"
+      "save. Button. 保存& buttonType_primary",
+      "rp. RangePicker. 日期"
     ];
     f1FieldsConfig = PPUtil.parseFieldsConfig(f1FieldsConfig);
 
@@ -39,7 +40,7 @@ export default class PPExample extends React.Component {
         id: "sec1",
         name: "电子邮件",
         // group
-        groups: ["sec1g0. start. 2& mail. f1. |. f2", "sec1g1. end. 12& save"]
+        groups: ["sec1g0. start. 2& mail. f1. |. f2. rp", "sec1g1. end. 12& save"]
       }
     ];
     f1FormConfig = PPUtil.parseFormConfig(f1FormConfig);
@@ -100,6 +101,11 @@ export default class PPExample extends React.Component {
         fieldsConfig: f1FieldsConfig,
         formConfig: f1FormConfig,
         data: f1Data
+      },
+      f2: {
+        fieldsConfig: f1FieldsConfig,
+        formConfig: f1FormConfig,
+        data: f1Data
       }
     };
 
@@ -117,6 +123,18 @@ export default class PPExample extends React.Component {
     this.setState({
       loading: false
     });
+  }
+
+  f1_onValuesChange(customForm, changedValues, allValues) {
+    if (Object.keys(changedValues).includes("f1")) {
+      customForm.ppForm.props.form.setFieldsValue({ f2: changedValues.f1 + " append f1" });
+    }
+  }
+
+  f2_onValuesChange(customForm, changedValues, allValues) {
+    if (Object.keys(changedValues).includes("f1")) {
+      customForm.ppForm.props.form.setFieldsValue({ f2: changedValues.f1 + " append f2" });
+    }
   }
 
   f1_saveOnClick() {
@@ -177,6 +195,11 @@ export default class PPExample extends React.Component {
             width={960}
             title={"测试列表"}
             saveApi={"testUrl"}
+          />
+          <CustomForm
+            id="f2"
+            parent={this}
+            ref={ref => (this.forms.f2 = ref)}
           />
           <Button onClick={() => this.submitAll()}>保存</Button>
         </div>

@@ -93,14 +93,19 @@ export default class CustomForm extends React.Component {
 
   EnhancedPPForm = Form.create({
     onValuesChange: (props, changedValues, allValues) => {
-      if (this.props.onValuesChange) {
-        () =>
-          this.props.onValuesChange(
-            this.ppForm.props.form,
-            changedValues,
-            allValues
-          );
+      const func = this.props.parent[this.props.id + "_onValuesChange"];
+      if (func) {
+        func(this, changedValues, allValues);
       }
+      // if (this.props.onValuesChange) {
+      //   // () =>
+      //   //   this.props.onValuesChange(
+      //   //     this.ppForm.props.form,
+      //   //     changedValues,
+      //   //     allValues
+      //   //   );
+
+      // }
     }
   })(PPForm);
 }

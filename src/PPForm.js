@@ -1,11 +1,23 @@
 import React from "react";
 import "antd/dist/antd.css";
-import { Form, Alert, Spin, Icon, Input, Button, Select, Row, Col } from "antd";
+import {
+  Form,
+  Alert,
+  DatePicker,
+  Spin,
+  Icon,
+  Input,
+  Button,
+  Select,
+  Row,
+  Col
+} from "antd";
 import { deepGet } from "./PPUtil";
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
 const Option = Select.Option;
+const { RangePicker, MonthPicker } = DatePicker;
 
 const lineBreak = {
   flexBasis: "100%",
@@ -162,6 +174,9 @@ export default class PPForm extends React.Component {
         return this.renderButton(id, props, antFieldItem.child);
       case "Select":
         return this.renderSelect(id, props, antFieldItem.child);
+      case "RangePicker":
+        return this.renderRangePicker(id, props, antFieldItem.child);
+
       default:
         return null;
     }
@@ -178,6 +193,11 @@ export default class PPForm extends React.Component {
         {...props}
       />
     );
+  }
+
+  renderRangePicker(props) {
+    console.log("renderRangePicker")
+    return <RangePicker {...props} />;
   }
 
   renderTextArea(props) {
