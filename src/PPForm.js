@@ -48,27 +48,29 @@ export default class PPForm extends React.Component {
 
   renderForm() {
     const sections = this.props.formConfig.sections;
-    return sections.map(item => (
-      <div key={item.id}>{this.renderSection(item)}</div>
+    return sections.map((item, index) => (
+      <div key={item.id}>{this.renderSection(item, index)}</div>
     ));
   }
 
-  renderSection(section) {
+  renderSection(section, sectionIndex) {
     const groups = section.groups;
 
     return (
       <div>
         <p>{section.name}</p>
-        {groups.map(item => (
+        {groups.map((item, index) => (
           <Row {...item.antRowProps} key={item.id}>
-            {this.renderGroup(item)}
+            {sectionIndex === 0 && index === 0
+              ? this.renderGroup(item, true)
+              : this.renderGroup(item)}
           </Row>
         ))}
       </div>
     );
   }
 
-  renderGroup(group) {
+  renderGroup(group, addSave) {
     const { colNum } = group;
     // 计算正常项目span数目
     const colSpanNum = 24 / colNum;
@@ -82,6 +84,25 @@ export default class PPForm extends React.Component {
       } else {
         fieldsArr.push({ ...this.props.fieldsConfig[field.id], id: field.id });
       }
+    }
+
+    if (addSave) {
+      const saveConfig = {
+        antFormItemProps: {
+          label: ""
+        },
+        antFieldDecorator: {
+          options: {}
+        },
+        antFieldItem: {
+          type: "Button",
+          props: {
+            type: "primary"
+          },
+          child: "保存"
+        }
+      };
+      // fieldsArr.push({ ...saveConfig, id: "SAVE" });
     }
 
     return fieldsArr.map((item, index) => {
@@ -196,7 +217,6 @@ export default class PPForm extends React.Component {
   }
 
   renderRangePicker(props) {
-    console.log("renderRangePicker")
     return <RangePicker {...props} />;
   }
 
@@ -272,9 +292,41 @@ export default class PPForm extends React.Component {
     });
   }
 
+  renderBottom() {
+    // const saveConfig = {
+    //   id: "SAVE",
+    //   antFormItemProps: {
+    //     label: ""
+    //   },
+    //   antFieldDecorator: {
+    //     options: {}
+    //   },
+    //   antFieldItem: {
+    //     type: "Button",
+    //     props: {
+    //       type: "primary"
+    //     },
+    //     child: "保存"
+    //   }
+    // };
+    // return (
+    //   <div style={{ display: "flex", justifyContent: "flex-end" }}>
+    //     {this.renderFormItem(saveConfig)}
+    //   </div>
+    // );
+  }
+
   renderId() {
     const { getFieldDecorator } = this.props.form;
     return getFieldDecorator("id")(<Input style={{ display: "none" }} />);
+  }
+
+  renderHeader() {
+    return (
+      <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <p>abc</p>
+      </div>
+    )
   }
 
   render() {
@@ -283,7 +335,9 @@ export default class PPForm extends React.Component {
       return (
         <Form {...this.props.formConfig.antFormProps}>
           {this.renderId()}
+          {this.renderHeader()}
           {this.renderForm()}
+          {this.renderBottom()}
           <Alert
             message={this.state.errorMessage}
             type="error"

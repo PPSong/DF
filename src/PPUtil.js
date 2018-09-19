@@ -78,12 +78,16 @@ export function isEmptyObject(obj) {
 
 export function parseFormConfig(source) {
   const sections = [];
+  let sectionIndex = 0;
   for (let section of source) {
+    sectionIndex++;
     const id = section.id;
     const name = section.name;
     const groups = [];
 
+    let groupIndex = 0;
     for (let groupItem of section.groups) {
+      groupIndex++;
       const parts = groupItem.split("&").map(item => item.trim());
       const groupPart = parts[0];
       const groupTags = groupPart.split(".").map(item => item.trim());
@@ -101,6 +105,11 @@ export function parseFormConfig(source) {
           fields.push({ id: item });
         }
       }
+
+      // 添加top save button
+      // if (sectionIndex === 1 && groupIndex === 1) {
+      //   fields.push({ id: "save" });
+      // }
 
       groups.push({
         id,

@@ -4,6 +4,7 @@ import { Form, Alert, Icon, Input, Button, Select, Row, Col, Spin } from "antd";
 import CustomForm from "./CustomForm";
 import PPList from "./PPList";
 import * as PPUtil from "./PPUtil";
+import moment from "moment";
 
 export default class PPExample extends React.Component {
   constructor(props) {
@@ -29,8 +30,7 @@ export default class PPExample extends React.Component {
       "f3. Input. f3& rule_*",
       "f4. Input. f4& rule_*",
       "f5. Input. f5& rule_*",
-      "save. Button. 保存& buttonType_primary",
-      "rp. RangePicker. 日期"
+      "modaSave. Button. modaSave",
     ];
     f1FieldsConfig = PPUtil.parseFieldsConfig(f1FieldsConfig);
 
@@ -40,7 +40,9 @@ export default class PPExample extends React.Component {
         id: "sec1",
         name: "电子邮件",
         // group
-        groups: ["sec1g0. start. 2& mail. f1. |. f2. rp", "sec1g1. end. 12& save"]
+        groups: [
+          "sec1g0. start. 4& mail. |. f1. |. f2. f3. f4. f5. modaSave"
+        ]
       }
     ];
     f1FormConfig = PPUtil.parseFormConfig(f1FormConfig);
@@ -125,19 +127,41 @@ export default class PPExample extends React.Component {
     });
   }
 
+  f1_save1OnClick() {
+    this.test();
+  }
+
+  f1_SAVEOnClick() {
+    this.test();
+  }
+
+  f1_modaSaveOnClick() {
+    console.log("moda save");
+  }
+
   f1_onValuesChange(customForm, changedValues, allValues) {
+    console.log(changedValues, allValues);
     if (Object.keys(changedValues).includes("f1")) {
-      customForm.ppForm.props.form.setFieldsValue({ f2: changedValues.f1 + " append f1" });
+      customForm.ppForm.props.form.setFieldsValue({
+        f3: changedValues.f1 + " append"
+      });
+      // const dateFormat = "YYYY/MM/DD";
+      // customForm.ppForm.props.form.setFieldsValue({
+      //   f2: changedValues.f1 + " append f1",
+      //   rp: [moment("2015/01/01", dateFormat), moment("2015/01/01", dateFormat)]
+      // });
     }
   }
 
   f2_onValuesChange(customForm, changedValues, allValues) {
     if (Object.keys(changedValues).includes("f1")) {
-      customForm.ppForm.props.form.setFieldsValue({ f2: changedValues.f1 + " append f2" });
+      customForm.ppForm.props.form.setFieldsValue({
+        f2: changedValues.f1 + " append f2"
+      });
     }
   }
 
-  f1_saveOnClick() {
+  test() {
     this.forms.f1.ppForm.props.form.validateFields((err, record) => {
       if (!err) {
         // 由editForm直接调用api保存的情况

@@ -97,14 +97,18 @@ export default class CustomForm extends React.Component {
       if (func) {
         func(this, changedValues, allValues);
       }
-      // if (this.props.onValuesChange) {
-      //   // () =>
-      //   //   this.props.onValuesChange(
-      //   //     this.ppForm.props.form,
-      //   //     changedValues,
-      //   //     allValues
-      //   //   );
+      if (this.props.onValuesChange) {
+        // () =>
+        //   this.props.onValuesChange(
+        //     this.ppForm.props.form,
+        //     changedValues,
+        //     allValues
+        //   );
 
+      }
+      // const func = this.props.parent["onValuesChange"];
+      // if (func) {
+      //   func(this, changedValues, allValues);
       // }
     }
   })(PPForm);
